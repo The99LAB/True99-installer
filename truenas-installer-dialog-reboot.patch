@@ -1,0 +1,52 @@
+diff --git forkSrcPrefix/truenas_installer/installer_menu.py forkDstPrefix/truenas_installer/installer_menu.py
+index 4992122140e34baa59624293be80107a8f3b0b97..e62943398132c124236b22709f41198f3999a3be 100644
+--- forkSrcPrefix/truenas_installer/installer_menu.py
++++ forkDstPrefix/truenas_installer/installer_menu.py
+@@ -18,7 +18,8 @@ class InstallerMenu:
+     async def run(self):
+         await self._main_menu()
+ 
+-    async def _main_menu(self):
++    async def _main_menu(self, default_item=None):
++        # Add argument to make item selected
+         await dialog_menu(
+             f"{self.installer.vendor} {self.installer.version} Console Setup",
+             {
+@@ -26,13 +27,18 @@ class InstallerMenu:
+                 "Shell": self._shell,
+                 "Reboot System": self._reboot,
+                 "Shutdown System": self._shutdown,
+-            }
++            },
++            default_item=default_item
+         )
+ 
+     async def _install_upgrade(self):
+         while True:
+-            await self._install_upgrade_internal()
+-            await self._main_menu()
++            success = await self._install_upgrade_internal()
++            if success:
++                await self._main_menu(default_item=3)
++            else:
++                await self._main_menu()
++
+ 
+     async def _install_upgrade_internal(self):
+         disks = await list_disks()
+diff --git forkSrcPrefix/truenas_installer/dialog.py forkDstPrefix/truenas_installer/dialog.py
+index 8a04800574e8f7760871001b64703d246484057b..70816f77177459233623440434ee87a3eb77944a 100644
+--- forkSrcPrefix/truenas_installer/dialog.py
++++ forkDstPrefix/truenas_installer/dialog.py
+@@ -46,9 +46,10 @@ async def dialog_checklist(title, text, items):
+         return None
+ 
+ 
+-async def dialog_menu(title, items):
++async def dialog_menu(title, items, default_item=None):
+     result = await dialog(
+         [
++            "--default-item", str(default_item) if default_item is not None else "",
+             "--clear",
+             "--title", title,
+             "--menu", "", "12", "73", "6"

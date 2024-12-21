@@ -1,0 +1,26 @@
+diff --git forkSrcPrefix/truenas_installer/installer_menu.py forkDstPrefix/truenas_installer/installer_menu.py
+index 4992122140e34baa59624293be80107a8f3b0b97..8a892209a047914027ecff422be3fce92931dc3f 100644
+--- forkSrcPrefix/truenas_installer/installer_menu.py
++++ forkDstPrefix/truenas_installer/installer_menu.py
+@@ -108,13 +108,14 @@ class InstallerMenu:
+         if not await dialog_yesno(f"{self.installer.vendor} Installation", text):
+             return False
+ 
+-        authentication_method = await dialog_menu(
+-            "Web UI Authentication Method",
+-            {
+-                "Administrative user (truenas_admin)": self._authentication_truenas_admin,
+-                "Configure using Web UI": self._authentication_webui,
+-            }
+-        )
++        authentication_method = await self._authentication_truenas_admin()
++        # authentication_method = await dialog_menu(
++        #     "Web UI Authentication Method",
++        #     {
++        #         "Administrative user (truenas_admin)": self._authentication_truenas_admin,
++        #         "Configure using Web UI": self._authentication_webui,
++        #     }
++        # )
+         if authentication_method is False:
+             return False
+ 
